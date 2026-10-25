@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f4ed">
+  <meta name="description" content="Keine Idee fürs Essen? Würfle dir dein heutiges Gericht aus.">
+  <title>Was esse ich heute?</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png" type="image/png">
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #26352c;
+      background: #f7f4ed;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 28px 20px;
+      background:
+        radial-gradient(ellipse at 12% 12%, rgba(231, 191, 117, .20), transparent 34%),
+        radial-gradient(ellipse at 90% 88%, rgba(118, 151, 121, .17), transparent 32%),
+        #f7f4ed;
+    }
+
+    main {
+      width: min(100%, 520px);
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: #738276;
+      font-size: .75rem;
+      font-weight: 750;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.6rem, 11vw, 4.5rem);
+      font-weight: 500;
+      letter-spacing: -.065em;
+      line-height: .98;
+    }
+
+    .intro {
+      max-width: 310px;
+      margin: 20px auto 30px;
+      color: #758078;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .plate {
+      display: grid;
+      min-height: 245px;
+      place-items: center;
+      margin: 0 0 24px;
+      padding: 32px 22px;
+      overflow: hidden;
+      border: 1px solid rgba(54, 71, 57, .09);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .76);
+      box-shadow: 0 20px 55px rgba(44, 54, 43, .08);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .plate.has-result {
+      transform: translateY(-3px);
+      box-shadow: 0 24px 60px rgba(44, 54, 43, .12);
+    }
+
+    .plate-content { max-width: 100%; }
+
+    .dish-emoji {
+      display: block;
+      margin-bottom: 15px;
+      font-size: 3.35rem;
+      line-height: 1;
+    }
+
+    .plate-label {
+      margin: 0 0 8px;
+      color: #9a8c70;
+      font-size: .72rem;
+      font-weight: 750;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .dish-name {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.65rem, 7vw, 2.25rem);
+      font-weight: 500;
+      letter-spacing: -.035em;
+      line-height: 1.12;
+      overflow-wrap: anywhere;
+    }
+
+    .dish-detail {
+      margin: 10px 0 0;
+      color: #758078;
+      font-size: .92rem;
+      line-height: 1.5;
+    }
+
+    button {
+      width: 100%;
+      min-height: 64px;
+      border: 0;
+      border-radius: 18px;
+      background: #355642;
+      color: #fffdf7;
+      box-shadow: 0 9px 20px rgba(53, 86, 66, .19);
+      cursor: pointer;
+      font: inherit;
+      font-size: 1.1rem;
+      font-weight: 700;
+      transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:hover { background: #294833; box-shadow: 0 12px 24px rgba(53, 86, 66, .25); }
+    button:active { transform: scale(.98); }
+    button:focus-visible { outline: 3px solid #d6a651; outline-offset: 4px; }
+
+    .button-group {
+      display: grid;
+      gap: 12px;
+    }
+
+    .vegetarian-button {
+      min-height: 56px;
+      border: 1px solid rgba(53, 86, 66, .25);
+      background: transparent;
+      color: #355642;
+      box-shadow: none;
+      font-size: 1rem;
+    }
+
+    .vegetarian-button:hover {
+      background: rgba(53, 86, 66, .08);
+      box-shadow: none;
+    }
+
+    .hint {
+      margin: 17px 0 0;
+      color: #929a91;
+      font-size: .8rem;
+    }
+
+    @media (max-width: 380px) {
+      body { padding: 22px 16px; }
+      .plate { min-height: 220px; border-radius: 24px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Die kleine Entscheidungshilfe</p>
+    <h1>Was esse ich<br>heute?</h1>
+    <p class="intro">Lass den Zufall entscheiden – und freu dich aufs Essen.</p>
+
+    <section class="plate" id="result" aria-live="polite" aria-atomic="true">
+      <div class="plate-content">
+        <span class="dish-emoji" id="dish-emoji" aria-hidden="true">🍽️</span>
+        <p class="plate-label" id="plate-label">Dein Gericht wartet</p>
+        <h2 class="dish-name" id="dish-name">Was darf's sein?</h2>
+        <p class="dish-detail" id="dish-detail">Ein Klick, ein leckeres Essen.</p>
+      </div>
+    </section>
+
+    <div class="button-group">
+      <button id="roll-button" type="button">🎲&nbsp; Würfeln</button>
+      <button id="vegetarian-button" class="vegetarian-button" type="button">🥬&nbsp; Nur vegetarisch</button>
+    </div>
+    <p class="hint">Zwölf Ideen – auch ganz vegetarisch.</p>
+  </main>
+
+  <script>
+    const dishes = [
+      { name: "Cremige Tomatenpasta", detail: "Mit frischem Basilikum und Parmesan", emoji: "🍝", vegetarian: true },
+      { name: "Knusprige Ofenkartoffeln", detail: "Mit Kräuterquark und knackigem Salat", emoji: "🥔", vegetarian: true },
+      { name: "Gemüse-Curry", detail: "Wärmend, bunt und mit duftendem Reis", emoji: "🍛", vegetarian: true },
+      { name: "Flammkuchen", detail: "Mit roten Zwiebeln und würzigem Käse", emoji: "🍕", vegetarian: true },
+      { name: "Bunte Buddha-Bowl", detail: "Mit Avocado, Edamame und Sesam", emoji: "🥑", vegetarian: true },
+      { name: "Linsen-Bolognese", detail: "Herzhaft geschmort, am liebsten mit Spaghetti", emoji: "🍲", vegetarian: true },
+      { name: "Knusprige Gemüse-Tacos", detail: "Mit Limette und einem Klecks Salsa", emoji: "🌮", vegetarian: true },
+      { name: "Pilzrisotto", detail: "Cremig gerührt mit frischen Kräutern", emoji: "🍚", vegetarian: true },
+      { name: "Shakshuka", detail: "Eier in würziger Tomatensauce, dazu Brot", emoji: "🍳", vegetarian: true },
+      { name: "Kürbissuppe", detail: "Samtig, mit gerösteten Kernen", emoji: "🎃", vegetarian: true },
+      { name: "Falafel-Wrap", detail: "Mit Hummus, Gurke und knackigem Rotkohl", emoji: "🧆", vegetarian: true },
+      { name: "Zitronen-Lachs", detail: "Mit Ofengemüse und frischer Zitrone", emoji: "🐟", vegetarian: false }
+    ];
+
+    const button = document.getElementById("roll-button");
+    const vegetarianButton = document.getElementById("vegetarian-button");
+    const result = document.getElementById("result");
+    const emoji = document.getElementById("dish-emoji");
+    const label = document.getElementById("plate-label");
+    const name = document.getElementById("dish-name");
+    const detail = document.getElementById("dish-detail");
+    let previousDish = null;
+
+    function rollDish(vegetarianOnly) {
+      const eligibleDishes = vegetarianOnly
+        ? dishes.filter((dish) => dish.vegetarian)
+        : dishes;
+      const alternatives = eligibleDishes.filter((dish) => dish !== previousDish);
+      const choices = alternatives.length > 0 ? alternatives : eligibleDishes;
+      const dish = choices[Math.floor(Math.random() * choices.length)];
+      previousDish = dish;
+      emoji.textContent = dish.emoji;
+      label.textContent = vegetarianOnly ? "Heute gibt's vegetarisch" : "Heute gibt's";
+      name.textContent = dish.name;
+      detail.textContent = dish.detail;
+      result.classList.remove("has-result");
+      requestAnimationFrame(() => result.classList.add("has-result"));
+    }
+
+    button.addEventListener("click", () => rollDish(false));
+    vegetarianButton.addEventListener("click", () => rollDish(true));
+  </script>
+</body>
+</html>
